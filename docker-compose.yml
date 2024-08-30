@@ -1,3 +1,5 @@
+version: '3.8'  # Specify the version (recommended)
+
 services:
   mysql:
     image: mysql:8.4
@@ -13,6 +15,17 @@ services:
       - "./conf.d:/etc/mysql/conf.d:ro"
     profiles:
       - mysql
+
+  spring-petclinic:
+    image: openjdk:17-jdk-slim
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./target/spring-petclinic-3.3.0-SNAPSHOT.jar:/app.jar  # Assuming your JAR file is built in the target directory
+    command: ["java", "-jar", "/app.jar"]
+    depends_on:
+      - mysql
+
   postgres:
     image: postgres:16.3
     ports:
