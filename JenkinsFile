@@ -1,1 +1,106 @@
+pipeline {
+    agent {
+        label 'java-build-node'
+    }
 
+    environment {
+        DOCKER_IMAGE = "vijayarajult2/pa-start:${BUILD_NUMBER}"
+        SONAR_URL = "http://34.230.89.106:9000"
+        GIT_REPO_NAME = "Jenkins-end-to-end"
+        GIT_USER_NAME = "vijayrajuyj1"
+        DOCKERHUB_CREDENTIALS = "credentials('docker-cred')"
+        AWS_REGION = 'us-east-1'
+    }
+
+    stages {
+        stage('Set AWS Credentials') {
+            steps {
+                script {
+                    // Load AWS credentials into environment variables
+                    withCredentials([aws(credentialsId: 'aws-cred', accessKeyVariable: 'AWS_ACCESS_KEY', secretKeyVariable: 'AWS_SECRET_KEY')]) {
+                        // AWS credentials are now available in the environment
+                        echo "AWS Access Key: $AWS_ACCESS_KEY"
+                        echo "AWS Secret Key: $AWS_SECRET_KEY"
+                    }
+                }
+            }
+        }
+
+        stage('Checkout') {
+            steps {
+                echo 'Checking out the code...'
+                // Uncomment the line below to checkout your repository
+                // git branch: 'main', url: 'https://github.com/iam-veeramalla/Jenkins-Zero-To-Hero.git'
+                sh 'echo passed'
+            }
+        }
+
+        stage('Build and Test') {
+            steps {
+                echo 'Building and testing the project...'
+                sh 'ls -ltr'
+                // Build the project and create a JAR file
+                sh 'cd spring-boot-app && mvn clean package'
+            }
+        }
+
+        stage('Static Code Analysis') {
+            steps {
+                echo 'Performing static code analysis with SonarQube...'
+                withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
+                    sh 'cd spring-boot-app && mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=${SONAR_URL}'
+                }
+            }
+        }
+        stage('login to dockerhub') {
+            steps{
+                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+            }
+        }
+        stage('Build and Push Docker Image') {
+            steps {
+                script {
+                    echo "Building Docker image ${DOCKER_IMAGE}..."
+                    sh 'cd spring-boot-app && docker build -t ${DOCKER_IMAGE} .'
+
+                    def dockerImage = docker.image("${DOCKER_IMAGE}")
+
+                    echo "Pushing Docker image ${DOCKER_IMAGE} to Docker Hub..."
+                    sh 'docker push ${DOCKER_IMAGE}'
+                    }
+                }
+            }
+        
+
+        stage('Run Docker Container') {
+            steps {
+                script {
+                    try {
+                        echo "Running Docker container from image ${DOCKER_IMAGE}..."
+                        def container = docker.image("${DOCKER_IMAGE}").run("-d -p 8080:8080")
+                        echo "Running container ${container.id}"
+                    } catch (Exception e) {
+                        echo "Failed to run Docker container: ${e.message}"
+                        throw e
+                    }
+                }
+            }
+        }
+
+        stage('Update Deployment File') {
+            steps {
+                echo 'Updating the Kubernetes deployment file with the new image tag...'
+                withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
+                    sh '''
+                        git config user.email "vijayarajuyj1@gmail.com"
+                        git config user.name "vijayrajuyj1"
+                        sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" spring-boot-app-manifests/deployment.yml
+                        git add spring-boot-app-manifests/deployment.yml
+                        git commit -m "Update deployment image to version ${BUILD_NUMBER}"
+                        git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
+                    '''
+                }
+            }
+        }
+    }
+}
