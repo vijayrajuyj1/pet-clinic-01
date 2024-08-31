@@ -1,5 +1,7 @@
 pipeline {
-    agent any 
+    agent{
+        label 'node1-build'
+        }
     environment {
         DOCKER_IMAGE = "vijayarajult2/petclinic:${BUILD_NUMBER}"
         SONAR_URL = "https://54.235.36.130:9000"
