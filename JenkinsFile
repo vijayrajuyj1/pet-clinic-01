@@ -22,7 +22,7 @@ pipeline {
                 echo 'Building and testing the project...'
                 sh 'ls -ltr'
                 // Build the project and create a JAR file
-                sh 'chmod +x mvnw && ./mvnw package'
+                sh './mvnw clean package -X'
             }
         }
 
