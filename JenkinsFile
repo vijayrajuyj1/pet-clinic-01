@@ -1,12 +1,9 @@
 pipeline {
-    agent {
-        label 'java-build-node'
-    }
-
+    agent any 
     environment {
-        DOCKER_IMAGE = "vijayarajult2/pa-start:${BUILD_NUMBER}"
-        SONAR_URL = "http://34.230.89.106:9000"
-        GIT_REPO_NAME = "Jenkins-end-to-end"
+        DOCKER_IMAGE = "vijayarajult2/petclinic:${BUILD_NUMBER}"
+        SONAR_URL = "http://54.235.36.130:9000"
+        GIT_REPO_NAME = "pet-clinic-01"
         GIT_USER_NAME = "vijayrajuyj1"
         DOCKERHUB_CREDENTIALS = "credentials('docker-cred')"
         AWS_REGION = 'us-east-1'
