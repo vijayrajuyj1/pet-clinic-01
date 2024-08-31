@@ -17,14 +17,6 @@ pipeline {
                 sh 'echo passed'
             }
         }
-        stage('Install Maven') {
-            steps {
-                sh '''
-                sudo apt update
-                sudo apt install -y maven
-                '''
-            }
-        }
         stage('Build and Test') {
             steps {
                 echo 'Building and testing the project...'
