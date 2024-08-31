@@ -23,7 +23,7 @@ pipeline {
                 echo 'Building and testing the project...'
                 sh 'ls -ltr'
                 // Build the project and create a JAR file
-                sh 'cd spring-boot-app && mvn clean package'
+                sh 'mvn clean package'
             }
         }
 
@@ -31,7 +31,7 @@ pipeline {
             steps {
                 echo 'Performing static code analysis with SonarQube...'
                 withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
-                    sh 'cd spring-boot-app && mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=${SONAR_URL}'
+                    sh 'mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=${SONAR_URL}'
                 }
             }
         }
@@ -44,7 +44,7 @@ pipeline {
             steps {
                 script {
                     echo "Building Docker image ${DOCKER_IMAGE}..."
-                    sh 'cd spring-boot-app && docker build -t ${DOCKER_IMAGE} .'
+                    sh 'docker build -t ${DOCKER_IMAGE} .'
 
                     def dockerImage = docker.image("${DOCKER_IMAGE}")
 
@@ -77,8 +77,8 @@ pipeline {
                     sh '''
                         git config user.email "vijayarajuyj1@gmail.com"
                         git config user.name "vijayrajuyj1"
-                        sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" spring-boot-app-manifests/deployment.yml
-                        git add spring-boot-app-manifests/deployment.yml
+                        sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" k8s/deployment.yml
+                        git add k8s/deployment.yml
                         git commit -m "Update deployment image to version ${BUILD_NUMBER}"
                         git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
                     '''
