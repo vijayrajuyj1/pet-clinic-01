@@ -6,23 +6,9 @@ pipeline {
         GIT_REPO_NAME = "pet-clinic-01"
         GIT_USER_NAME = "vijayrajuyj1"
         DOCKERHUB_CREDENTIALS = "credentials('docker-cred')"
-        AWS_REGION = 'us-east-1'
     }
 
     stages {
-        stage('Set AWS Credentials') {
-            steps {
-                script {
-                    // Load AWS credentials into environment variables
-                    withCredentials([aws(credentialsId: 'aws-cred', accessKeyVariable: 'AWS_ACCESS_KEY', secretKeyVariable: 'AWS_SECRET_KEY')]) {
-                        // AWS credentials are now available in the environment
-                        echo "AWS Access Key: $AWS_ACCESS_KEY"
-                        echo "AWS Secret Key: $AWS_SECRET_KEY"
-                    }
-                }
-            }
-        }
-
         stage('Checkout') {
             steps {
                 echo 'Checking out the code...'
