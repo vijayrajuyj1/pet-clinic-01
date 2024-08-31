@@ -3,7 +3,7 @@ pipeline {
   agent {
     label 'node1-build'
     }
-  }
+  
   stages {
     stage('Checkout') {
       steps {
