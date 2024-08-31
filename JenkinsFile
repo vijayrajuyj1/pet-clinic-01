@@ -20,9 +20,9 @@ pipeline {
         stage('Build and Test') {
             steps {
                 echo 'Building and testing the project...'
-                
+                sh 'ls -ltr'
                 // Build the project and create a JAR file
-                sh './mvnw package'
+                sh 'mvnw clean package'
             }
         }
 
