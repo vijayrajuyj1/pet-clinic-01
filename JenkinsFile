@@ -1,7 +1,6 @@
 pipeline {
   agent {
     label 'node1-build'
-    image 'vijayarajult2/petclinic:v1'
   }
   stages {
     stage('Checkout') {
