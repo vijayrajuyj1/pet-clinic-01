@@ -4,7 +4,7 @@ pipeline {
         }
     environment {
         DOCKER_IMAGE = "vijayarajult2/petclinic:${BUILD_NUMBER}"
-        SONAR_URL = "http://54.235.36.130:9000"
+        SONAR_URL = "http://50.19.144.223:9000"
         GIT_REPO_NAME = "pet-clinic-01"
         GIT_USER_NAME = "vijayrajuyj1"
         DOCKERHUB_CREDENTIALS = "credentials('docker-cred')"
