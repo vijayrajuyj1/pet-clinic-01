@@ -1,9 +1,9 @@
 # Use the official OpenJDK image as the base image
 FROM openjdk:17-jdk-slim
-
+RUN ./mvnw package 
 # Set the working directory in the container
 WORKDIR /app
-RUN ./mvnw package 
+
 # Copy the Spring Boot JAR file into the container
 COPY ./target/spring-petclinic-3.3.0-SNAPSHOT.jar /app/app.jar
 
