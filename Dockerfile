@@ -1,6 +1,6 @@
 # Use the official OpenJDK image as the base image
 FROM openjdk:17-jdk-slim
-RUN ./mvnw package 
+RUN  ./mvnw package 
 # Set the working directory in the container
 WORKDIR /app
 
