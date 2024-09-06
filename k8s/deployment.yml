@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: spring-petclinic-container
-          image: vijayarajult2/petclinic:17
+          image: vijayarajult2/petclinic:{{ .Values.image.tag}}
           ports:
             - containerPort: 8080
           env:
